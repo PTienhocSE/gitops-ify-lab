@@ -14,6 +14,16 @@ spec:
         prometheus:
           prometheusSpec:
             serviceMonitorSelectorNilUsesHelmValues: false
+        alertmanager:
+          enabled: false
+        grafana:
+          enabled: false
+        prometheus-node-exporter:
+          enabled: false
+        kubeStateMetrics:
+          enabled: false
+        nodeExporter:
+          enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
