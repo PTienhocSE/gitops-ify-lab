@@ -30,6 +30,7 @@ spec:
               repeat_interval: 1h
               receiver: 'email-receiver'
             receivers:
+            - name: 'null'
             - name: 'email-receiver'
               email_configs:
               - to: 'your-email@example.com'
