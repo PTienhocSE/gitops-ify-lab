@@ -15,7 +15,25 @@ spec:
           prometheusSpec:
             serviceMonitorSelectorNilUsesHelmValues: false
         alertmanager:
-          enabled: false
+          enabled: true
+          config:
+            global:
+              smtp_smarthost: 'smtp.gmail.com:587'
+              smtp_from: 'alertmanager@gitops-lab.com'
+              smtp_auth_username: 'dummy-email@gmail.com'
+              smtp_auth_password: 'dummy-app-password'
+              smtp_require_tls: true
+            route:
+              group_by: ['alertname']
+              group_wait: 10s
+              group_interval: 10s
+              repeat_interval: 1h
+              receiver: 'email-receiver'
+            receivers:
+            - name: 'email-receiver'
+              email_configs:
+              - to: 'your-email@example.com'
+                send_resolved: true
         grafana:
           enabled: false
         prometheus-node-exporter:

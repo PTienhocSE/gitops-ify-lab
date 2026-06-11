@@ -33,11 +33,14 @@ spec:
             port: 8080
   strategy:
     canary:
+      analysis:
+        templates:
+        - templateName: success-rate
       steps:
       - setWeight: 25
-      - pause: {}        # Wait indefinitely for manual promotion/abort
+      - pause: { duration: 2m }
       - setWeight: 50
-      - pause: { duration: 30s }
+      - pause: { duration: 1m }
       - setWeight: 100
 ---
 apiVersion: v1
