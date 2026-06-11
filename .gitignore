@@ -1,0 +1,12 @@
+# Terraform local files
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.tfstate.lock.info
+
+# Cryptographic Private Keys
+*.pem
+
+# Large binaries and plugins
+*.exe
+kubectl-argo-rollouts
