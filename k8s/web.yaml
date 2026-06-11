@@ -8,7 +8,7 @@ metadata:
 data:
   MESSAGE: "hello from gitops"
 ---
-apiVersion: apps/v1
+apiVersion: apps/v999
 kind: Deployment
 metadata:
   name: web
