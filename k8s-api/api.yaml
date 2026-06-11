@@ -26,7 +26,7 @@ spec:
         - name: ERROR_RATE
           value: "0.2"
         - name: VERSION
-          value: "v4"
+          value: "v5"
         readinessProbe:
           httpGet:
             path: /healthz
@@ -38,7 +38,7 @@ spec:
         - templateName: success-rate
       steps:
       - setWeight: 25
-      - pause: { duration: 2m }
+      - pause: { duration: 3m }
       - setWeight: 50
       - pause: { duration: 1m }
       - setWeight: 100
