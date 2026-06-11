@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: web
+  name: frontend
   namespace: argocd
 spec:
   project: default
@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/PTienhocSE/gitops-ify-lab.git
     targetRevision: main
-    path: k8s/web
+    path: k8s/frontend
 
   destination:
     server: https://kubernetes.default.svc
