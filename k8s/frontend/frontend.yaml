@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: demo
+data:
+  BACKEND_URL: "http://backend:8080"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: demo
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
