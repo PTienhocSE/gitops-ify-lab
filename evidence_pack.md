@@ -5,7 +5,7 @@
 ## STUDENT METADATA
 *   **Student ID**: XB-DN26-064
 *   **Course**: AWS & Kubernetes Cloud Infrastructure Laboratory
-*   **Date**: 2026-06-11
+*   **Date**: 2026-06-12
 *   **Status**: Completed & Verified
 *   **Target Region**: us-east-1 (N. Virginia)
 
@@ -34,8 +34,6 @@ The architecture utilizes a GitOps model to manage deployments on a Kubernetes c
 
 ## 2. VERIFICATION CHECKS AND EVIDENCE COLLECTION
 
-Below are the verified checks confirming the successful execution of each stage.
-
 ### Check 1: AWS EC2 Instance Status
 *   **Description**: Verification of the `w9-gitops-lab-ec2` instance running in `us-east-1` with 8GB of RAM.
 *   **Proof Command**:
@@ -44,12 +42,20 @@ Below are the verified checks confirming the successful execution of each stage.
     # Result: [["i-0385c8593e5fd9ad9", "running", "52.90.88.29"]]
     ```
 
+![AWS EC2 Console](./images/aws_ec2_console.png)
+
+---
+
 ### Check 2: ArgoCD Dashboard and GitOps Synced State
 *   **Description**: ArgoCD UI accessed at `https://52.90.88.29:8080` showing all child applications (`api`, `argo-rollouts`, `kube-prometheus-stack`, `backend`, `frontend`, `web`) reporting `Synced` and `Healthy` under the parent `root` bootstrap app.
 *   **Proof Command**:
     ```bash
     kubectl get applications -n argocd
     ```
+
+![ArgoCD Apps Dashboard](./images/argocd_apps.png)
+
+---
 
 ### Check 3: Prometheus Scrape Targets Status
 *   **Description**: Verification showing that the ServiceMonitor successfully registered our Flask API target, and Prometheus is actively scraping `/metrics` from the running API pods.
@@ -59,12 +65,20 @@ Below are the verified checks confirming the successful execution of each stage.
     # Result: Returns active request vectors with HTTP status 200/500 for each API pod.
     ```
 
+![Prometheus Targets](./images/prometheus_targets.png)
+
+---
+
 ### Check 4: Manual Canary Rollout Pause
 *   **Description**: Sourced by updating `VERSION` to `"v3"` on Git. The rollout successfully paused at 25% weight (1 updated canary pod, 3 stable pods) awaiting manual promotion/abort.
 *   **Proof Command**:
     ```bash
     kubectl argo rollouts get rollout api -n demo
     ```
+
+![Argo Rollouts CLI - Paused](./images/rollout_paused.png)
+
+---
 
 ### Check 5: Automated Canary Rollout Abort & Rollback (Challenge Verification)
 *   **Description**: Injected a 20% error rate (`ERROR_RATE: "0.2"`) in version `"v5"`. The `AnalysisRun` detected that the HTTP success rate fell to **93.1%** (below the 95% threshold). Once the failure limit was exceeded, the rollout controller automatically terminated the release, aborted the rollout of revision 4, and restored revision 3 as the healthy 100% stable version.
@@ -73,6 +87,10 @@ Below are the verified checks confirming the successful execution of each stage.
     Status:          ✖ Degraded
     Message:         RolloutAborted: Rollout aborted update to revision 4: Metric "success-rate" assessed Failed due to failed (4) > failureLimit (3)
     ```
+
+![Argo Rollouts Auto-Abort](./images/rollout_aborted.png)
+
+---
 
 ### Check 6: SLO Alerting via Alertmanager
 *   **Description**: Verification showing that when the success rate breached the 95% threshold, the Prometheus alerting engine fired the `ApiSuccessRateLow` rule and forwarded it to Alertmanager.
@@ -85,10 +103,17 @@ Below are the verified checks confirming the successful execution of each stage.
 
 ---
 
+### Check 7: Email Notification Received (Google OAuth2 Mailer)
+*   **Description**: Verification showing that the webhook bridge processed the firing alert and dispatched a styled HTML email notification containing error details to the administrator's email.
+
+![Gmail SLO Alert Received](./images/gmail_alert_received.png)
+
+---
+
 ## 3. TECHNICAL DESIGN AND DECISION ANALYSIS
 
 ### 3.1. Cloud EC2 Sandbox Migration vs. Local Hosting
-*   **Problem**: The developer's physical host has 8GB of RAM, limiting Docker Desktop's WSL2 VM allocation to 3.8GB. Running the Prometheus Server (which operates a heavy in-memory TSDB engine) alongside ArgoCD, Argo Rollouts, and multiple application namespaces (frontend, backend, web, api) exhausted the memory, causing WSL2 thrashing, etcd storage corruption, and API Server timeouts (`K8S_APISERVER_MISSING`).
+*   **Problem**: The developer's physical host has 8GB of RAM, limiting Docker Desktop's WSL2 VM allocation to 3.8GB. Running the Prometheus Server (which operates a heavy in-memory TSDB engine) alongside ArgoCD, Argo Rollouts, and multiple application namespaces (frontend, backend, web, api) exhausted the memory, causing WSL2 VM thrashing, etcd storage corruption, and API Server timeouts.
 *   **Decision**: We provisioned a dedicated `t3.large` (2 vCPUs, 8GB RAM, 30GB gp3 SSD) EC2 instance on AWS. 
 *   **Benefit**: This isolates the resource-heavy Kubernetes cluster from the host, provides ample dedicated memory overhead, and allows public UI dashboard forwarding using a secure Security Group.
 
