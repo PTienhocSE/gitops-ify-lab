@@ -1,0 +1,13 @@
+{
+  "name": "alert-mailer",
+  "version": "1.0.0",
+  "description": "Alertmanager webhook to Gmail SMTP OAuth2 bridge",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.13"
+  }
+}

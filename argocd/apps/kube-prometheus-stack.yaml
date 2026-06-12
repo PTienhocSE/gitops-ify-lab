@@ -17,23 +17,17 @@ spec:
         alertmanager:
           enabled: true
           config:
-            global:
-              smtp_smarthost: 'smtp.gmail.com:587'
-              smtp_from: 'alertmanager@gitops-lab.com'
-              smtp_auth_username: 'dummy-email@gmail.com'
-              smtp_auth_password: 'dummy-app-password'
-              smtp_require_tls: true
             route:
               group_by: ['alertname']
               group_wait: 10s
               group_interval: 10s
               repeat_interval: 1h
-              receiver: 'email-receiver'
+              receiver: 'webhook-receiver'
             receivers:
             - name: 'null'
-            - name: 'email-receiver'
-              email_configs:
-              - to: 'your-email@example.com'
+            - name: 'webhook-receiver'
+              webhook_configs:
+              - url: 'http://alert-mailer.monitoring.svc.cluster.local:8080/alert'
                 send_resolved: true
         grafana:
           enabled: false

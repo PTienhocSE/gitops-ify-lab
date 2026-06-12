@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-mailer
+  namespace: monitoring
+  labels:
+    app: alert-mailer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alert-mailer
+  template:
+    metadata:
+      labels:
+        app: alert-mailer
+    spec:
+      containers:
+      - name: alert-mailer
+        image: alert-mailer:1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GOOGLE_MAILER_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: alert-mailer-secret
+              key: client-id
+        - name: GOOGLE_MAILER_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: alert-mailer-secret
+              key: client-secret
+        - name: GOOGLE_MAILER_REFRESH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: alert-mailer-secret
+              key: refresh-token
+        - name: ADMIN_EMAIL_ADDRESS
+          valueFrom:
+            secretKeyRef:
+              name: alert-mailer-secret
+              key: admin-email
+        - name: FROM_NAME
+          valueFrom:
+            secretKeyRef:
+              name: alert-mailer-secret
+              key: from-name
+        - name: TO_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: alert-mailer-secret
+              key: to-email
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alert-mailer
+  namespace: monitoring
+  labels:
+    app: alert-mailer
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: alert-mailer
