@@ -30,7 +30,7 @@ spec:
               - url: 'http://alert-mailer.monitoring.svc.cluster.local:8080/alert'
                 send_resolved: true
         grafana:
-          enabled: false
+          enabled: true
         prometheus-node-exporter:
           enabled: false
         kubeStateMetrics:
